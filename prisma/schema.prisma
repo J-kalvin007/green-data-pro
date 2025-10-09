@@ -1,0 +1,111 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+enum Role {
+  ADMIN
+  INGENIEUR
+  TECHNICIEN
+  INVESTISSEUR
+}
+
+model Profile {
+  id                 String   @id @default(uuid())
+  clerkId            String   @unique
+  email              String   @unique
+  nom                String?
+  prenom             String?
+  role               Role     @default(INVESTISSEUR)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  champs             Champ[]
+  compteExploitation CompteExploitation[]
+  operations         Operation[]
+  chargesFixes       ChargesFixes[]  
+}
+
+model Champ {
+  id          String   @id @default(uuid())
+  village     String
+  superficie  String
+  nom         String
+  coordonnees String?
+  imageUrl    String?
+  clerkRef    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  profile            Profile?             @relation(fields: [clerkRef], references: [clerkId], onDelete: SetNull)
+  compteExploitation CompteExploitation[]
+}
+
+model CompteExploitation {
+  id             String   @id @default(uuid())
+  champId        String
+  numeroProduit  String
+  superficie     String
+  typeProduction String
+  nomChamp       String
+  clerkRef       String?
+  dateDebut      DateTime
+  dateFin        DateTime
+  nomProduit     String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  champ      Champ    @relation(fields: [champId], references: [id], onDelete: SetNull)
+  profile    Profile? @relation(fields: [clerkRef], references: [clerkId], onDelete: SetNull)
+  operations Operation[]
+}
+
+
+model Operation {
+  id                   String   @id @default(uuid())
+  compteExploitationId String
+  nom                  String?
+  description           String?
+  dateDebutPrevu       DateTime?
+  dateFinPrevu         DateTime?
+  dateDebutReel        DateTime?
+  dateFinReel          DateTime?
+  commentaire          String?
+  coutPrevu            Float?
+  coutReel             Float?
+  ecart                Float?
+  statut               Boolean? @default(false)
+  clerkRef             String?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  compteExploitation CompteExploitation @relation(fields: [compteExploitationId], references: [id], onDelete: Cascade)
+  profile            Profile?           @relation(fields: [clerkRef], references: [clerkId], onDelete: SetNull)
+}
+
+
+model ChargesFixes {
+  id          String   @id @default(uuid())
+  clerkRef    String?
+  nom         String
+  description String?
+  montant     Float
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  profile     Profile? @relation(fields: [clerkRef], references: [clerkId], onDelete: SetNull)
+}
