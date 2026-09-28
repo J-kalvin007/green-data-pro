@@ -630,7 +630,3 @@ npm run start
 
 3. **Calcul d'Écart Automatisé dans les Opérations** :
    - Mettre à jour `updateOperation` pour calculer automatiquement `ecart = coutReel - coutPrevu` lors du changement de statut vers `Terminé`.
-
----
-
-*Documentation rédigée pour l'équipe technique de Green Data Pro.*
